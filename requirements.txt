@@ -1,0 +1,19 @@
+Django==3.2.24
+celery==5.3.6
+redis==5.0.1
+pandas==1.5.3
+openpyxl==3.1.2
+sqlalchemy==2.0.27
+django-celery-results==2.5.1
+python-dotenv==1.0.1
+amqp==5.2.0
+billiard==4.2.0
+kombu==5.3.5
+vine==5.1.0
+click==8.1.7
+colorama==0.4.6  # Required for Windows color support
+django-cors-headers==4.3.1
+djangorestframework==3.14.0
+psycopg2-binary==2.9.9
+celery[redis]
+celery[sqlalchemy]

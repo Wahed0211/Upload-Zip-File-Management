@@ -1,0 +1,122 @@
+{% extends "aap_api/base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="text-center mb-0">Login</h3>
+                </div>
+                <div class="card-body">
+                    <div class="messages mb-4">
+                    {% if messages %}
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                    </div>
+                    
+                    <form method="post" action="{% url 'aap_api:login' %}" id="loginForm">
+                        {% csrf_token %}
+                        <div class="form-group mb-3">
+                            <label for="email" class="form-label">Email address</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        <div class="form-group mb-4">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">Login</button>
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="{% url 'aap_api:register' %}" class="text-decoration-none">
+                                Don't have an account? Register here
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Toast -->
+<div class="toast-container position-fixed top-0 end-0 p-3">
+    <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                Login successful!
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('loginForm');
+    const submitButton = form.querySelector('button[type="submit"]');
+    const messagesDiv = document.querySelector('.messages');
+    
+    function showError(message) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        messagesDiv.innerHTML = '';
+        messagesDiv.appendChild(alertDiv);
+    }
+    
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        submitButton.disabled = true;
+        submitButton.innerHTML = 'Logging in...';
+        
+        const formData = new FormData(form);
+        
+        fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            },
+            body: formData,
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                window.location.href = data.redirect_url;
+            } else {
+                showError(data.message || 'Invalid email or password.');
+                submitButton.disabled = false;
+                submitButton.innerHTML = 'Login';
+            }
+        })
+        .catch(error => {
+            showError('An error occurred. Please try again.');
+            submitButton.disabled = false;
+            submitButton.innerHTML = 'Login';
+            console.error('Error:', error);
+        });
+    });
+});
+</script>
+{% endblock %}
