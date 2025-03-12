@@ -246,3 +246,5 @@ CELERY_TASK_REJECT_ON_WORKER_LOST = True
 
 # Celery Beat Settings (if you need scheduled tasks)
 CELERY_BEAT_SCHEDULE = {}
+
+
